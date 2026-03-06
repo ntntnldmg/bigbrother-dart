@@ -1,0 +1,12 @@
+{
+    "name": "bigbrother",
+    "short_name": "bigbrother",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "Big Brother is watching.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": []
+}
