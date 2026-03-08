@@ -13,10 +13,9 @@ class GameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => GameCubit(),
-      child: const _GameScreenContent(),
-    );
+    // GameCubit is provided at the app root (main.dart) so that state —
+    // including citizens — persists even when navigating back to IntroScreen.
+    return const _GameScreenContent();
   }
 }
 
@@ -99,7 +98,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'CYCLE REMAINING: ${state.remainingTimeInDayInt}s',
+                        'TIME: ${12 - (state.remainingTimeInDayInt / 30).toInt()} / 12',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,

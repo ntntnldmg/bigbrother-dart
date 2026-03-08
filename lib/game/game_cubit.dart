@@ -10,6 +10,15 @@ class GameCubit extends Cubit<GameState> {
   double _pendingDt = 0.0;
   static const double _emitThreshold = 0.1;
 
+  // 6 minutes per day.
+  static const double _dayDuration = 360.0;
+
+  // Threat starts at 15% and must reach 100% in exactly 2 days of passive play.
+  // That is 85% over 2 × 360s = 720s → 85 / 720 ≈ 0.1181 % per second.
+  static const double _threatRatePerSecond = 85.0 / 720.0;
+
+  // Citizens are generated once when the game session starts and persist
+  // across day rollovers. Only detaining removes citizens from this pool.
   GameCubit()
     : super(
         GameState.initial().copyWith(
@@ -18,12 +27,13 @@ class GameCubit extends Cubit<GameState> {
       );
 
   void _startNewDay({required int newDay, required double currentThreat}) {
+    // todayCitizens is intentionally omitted so the existing citizen list
+    // carries over unchanged into the next day.
     emit(
       state.copyWith(
-        remainingTimeInDay: 60.0,
+        remainingTimeInDay: _dayDuration,
         currentDay: newDay,
         terroristThreat: currentThreat,
-        todayCitizens: CitizenGenerator.generateDailyCitizens(30),
       ),
     );
   }
@@ -39,7 +49,11 @@ class GameCubit extends Cubit<GameState> {
     _pendingDt = 0.0;
 
     double newTime = state.remainingTimeInDay - effectiveDt;
-    double newThreat = (state.terroristThreat + effectiveDt).clamp(0.0, 100.0);
+    double newThreat =
+        (state.terroristThreat + _threatRatePerSecond * effectiveDt).clamp(
+          0.0,
+          100.0,
+        );
 
     if (newThreat >= 100.0) {
       // TODO: Handle game over condition

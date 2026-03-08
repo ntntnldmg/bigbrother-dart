@@ -22,10 +22,10 @@ class GameState extends Equatable {
   factory GameState.initial() {
     return const GameState(
       currentDay: 1,
-      terroristThreat: 0.0,
+      terroristThreat: 15.0,
       detaineeCount: 0,
       investigationCount: 0,
-      remainingTimeInDay: 60.0,
+      remainingTimeInDay: 360.0,
       todayCitizens: [],
     );
   }
