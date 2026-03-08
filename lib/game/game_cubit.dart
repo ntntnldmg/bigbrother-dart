@@ -70,14 +70,16 @@ class GameCubit extends Cubit<GameState> {
   }
 
   /// Action: Detain a citizen.
+  /// The citizen remains in the database but is marked as detained.
   void detainCitizen(Citizen citizen) {
-    // Use ID-based filtering rather than List.remove() to avoid an Equatable
-    // pitfall: if the citizen was investigated after the dialog opened,
-    // its isInvestigated field differs from the snapshot held by the dialog,
-    // so value-equality would fail to find it in the list.
-    final updatedCitizens = state.todayCitizens
-        .where((c) => c.idNumber != citizen.idNumber)
-        .toList();
+    if (citizen.isDetained) return;
+
+    final updatedCitizens = state.todayCitizens.map((c) {
+      if (c.idNumber == citizen.idNumber) {
+        return c.copyWith(isDetained: true);
+      }
+      return c;
+    }).toList();
 
     double newThreat = state.terroristThreat;
 

@@ -14,6 +14,9 @@ class Citizen extends Equatable {
   /// Track if the player has investigated this citizen
   final bool isInvestigated;
 
+  /// Track if the citizen is currently in custody
+  final bool isDetained;
+
   const Citizen({
     required this.idNumber,
     required this.ageGroup,
@@ -22,6 +25,7 @@ class Citizen extends Equatable {
     required this.ethnicity,
     required this.riskScore,
     this.isInvestigated = false,
+    this.isDetained = false,
   });
 
   Citizen copyWith({
@@ -32,6 +36,7 @@ class Citizen extends Equatable {
     String? ethnicity,
     double? riskScore,
     bool? isInvestigated,
+    bool? isDetained,
   }) {
     return Citizen(
       idNumber: idNumber ?? this.idNumber,
@@ -41,6 +46,7 @@ class Citizen extends Equatable {
       ethnicity: ethnicity ?? this.ethnicity,
       riskScore: riskScore ?? this.riskScore,
       isInvestigated: isInvestigated ?? this.isInvestigated,
+      isDetained: isDetained ?? this.isDetained,
     );
   }
 
@@ -53,5 +59,6 @@ class Citizen extends Equatable {
     ethnicity,
     riskScore,
     isInvestigated,
+    isDetained,
   ];
 }
