@@ -48,4 +48,8 @@ app.*.map.json
 /TODO.md
 /resources/
 /linux/
+.vscode/
 
+# FVM Version Cache
+.fvm/
+.fvmrc
