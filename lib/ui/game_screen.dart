@@ -2,6 +2,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import '../game/big_brother_game.dart';
 import 'intro_screen.dart';
+import 'citizen_panel.dart';
 
 /// The main screen where the game is rendered.
 class GameScreen extends StatefulWidget {
@@ -29,10 +30,21 @@ class _GameScreenState extends State<GameScreen> {
           // The Flame game widget
           Positioned.fill(child: GameWidget(game: _game)),
 
+          // Left side citizen panel
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 0,
+            child: AnimatedBuilder(
+              animation: _game.gameState,
+              builder: (context, _) => CitizenPanel(gameState: _game.gameState),
+            ),
+          ),
+
           // Top left controls
           Positioned(
             top: 20,
-            left: 20,
+            left: 320, // Moved to the right of the citizen panel
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               tooltip: 'Back to Menu',

@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../models/citizen.dart';
+import '../systems/citizen_generator.dart';
 
 /// Represents the global state of the game.
 class GameState extends ChangeNotifier {
@@ -8,7 +10,19 @@ class GameState extends ChangeNotifier {
   int investigationCount = 0;
   double _remainingTimeInDay = 60.0; // 60 seconds per day, placeholder
 
+  List<Citizen> todayCitizens = [];
+
+  GameState() {
+    _startNewDay();
+  }
+
   int get remainingTimeInDay => _remainingTimeInDay.ceil();
+
+  void _startNewDay() {
+    _remainingTimeInDay = 60.0;
+    todayCitizens = CitizenGenerator.generateDailyCitizens(30);
+    notifyListeners();
+  }
 
   /// Updates the time and threat based on delta time (dt).
   void updateTime(double dt) {
@@ -24,7 +38,9 @@ class GameState extends ChangeNotifier {
 
     if (_remainingTimeInDay <= 0) {
       _remainingTimeInDay = 0;
-      // TODO: Handle end of day condition
+      // End of day condition
+      currentDay++;
+      _startNewDay();
     }
 
     notifyListeners();

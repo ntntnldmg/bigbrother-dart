@@ -1,9 +1,20 @@
 /// Represents a citizen in the game world.
 class Citizen {
-  final String id;
-  String name;
-  double threatLevel;
+  final String idNumber;
+  final String ageGroup;
+  final String occupation;
+  final String religion;
+  final String ethnicity;
 
-  /// Initialize a new citizen.
-  Citizen({required this.id, required this.name, this.threatLevel = 0.0});
+  /// Hidden from player
+  final double riskScore;
+
+  Citizen({
+    required this.idNumber,
+    required this.ageGroup,
+    required this.occupation,
+    required this.religion,
+    required this.ethnicity,
+    required this.riskScore,
+  });
 }
