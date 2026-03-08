@@ -4,14 +4,25 @@ import '../models/citizen.dart';
 import '../systems/citizen_generator.dart';
 
 class GameCubit extends Cubit<GameState> {
-  GameCubit() : super(GameState.initial()) {
-    _startNewDay();
-  }
+  // Accumulate dt and only emit state when enough time has elapsed.
+  // This caps the BLoC stream to ~10 updates/sec instead of 60fps,
+  // reducing unnecessary BlocBuilder predicate evaluations.
+  double _pendingDt = 0.0;
+  static const double _emitThreshold = 0.1;
 
-  void _startNewDay() {
+  GameCubit()
+    : super(
+        GameState.initial().copyWith(
+          todayCitizens: CitizenGenerator.generateDailyCitizens(30),
+        ),
+      );
+
+  void _startNewDay({required int newDay, required double currentThreat}) {
     emit(
       state.copyWith(
         remainingTimeInDay: 60.0,
+        currentDay: newDay,
+        terroristThreat: currentThreat,
         todayCitizens: CitizenGenerator.generateDailyCitizens(30),
       ),
     );
@@ -19,28 +30,23 @@ class GameCubit extends Cubit<GameState> {
 
   /// Updates the time and threat based on delta time (dt).
   void tick(double dt) {
-    if (state.terroristThreat >= 100.0 || state.remainingTimeInDay <= 0) return;
+    if (state.terroristThreat >= 100.0) return;
 
-    double newTime = state.remainingTimeInDay - dt;
-    double newThreat = state.terroristThreat + (1.0 * dt);
+    _pendingDt += dt;
+    if (_pendingDt < _emitThreshold) return;
+
+    final effectiveDt = _pendingDt;
+    _pendingDt = 0.0;
+
+    double newTime = state.remainingTimeInDay - effectiveDt;
+    double newThreat = (state.terroristThreat + effectiveDt).clamp(0.0, 100.0);
 
     if (newThreat >= 100.0) {
-      newThreat = 100.0;
       // TODO: Handle game over condition
     }
 
     if (newTime <= 0) {
-      newTime = 0;
-
-      // End of day condition -> increment day, reset counters and citizens
-      emit(
-        state.copyWith(
-          remainingTimeInDay: 60.0,
-          currentDay: state.currentDay + 1,
-          terroristThreat: newThreat,
-          todayCitizens: CitizenGenerator.generateDailyCitizens(30),
-        ),
-      );
+      _startNewDay(newDay: state.currentDay + 1, currentThreat: newThreat);
       return;
     }
 
@@ -51,8 +57,13 @@ class GameCubit extends Cubit<GameState> {
 
   /// Action: Detain a citizen.
   void detainCitizen(Citizen citizen) {
-    final updatedCitizens = List<Citizen>.from(state.todayCitizens)
-      ..remove(citizen);
+    // Use ID-based filtering rather than List.remove() to avoid an Equatable
+    // pitfall: if the citizen was investigated after the dialog opened,
+    // its isInvestigated field differs from the snapshot held by the dialog,
+    // so value-equality would fail to find it in the list.
+    final updatedCitizens = state.todayCitizens
+        .where((c) => c.idNumber != citizen.idNumber)
+        .toList();
 
     double newThreat = state.terroristThreat;
 

@@ -20,7 +20,9 @@ class BigBrotherGame extends FlameGame {
     // Main game loop update
     super.update(dt);
 
-    // Update game state
-    gameCubit.tick(dt);
+    // Guard against the cubit being closed during navigation transitions.
+    if (!gameCubit.isClosed) {
+      gameCubit.tick(dt);
+    }
   }
 }
