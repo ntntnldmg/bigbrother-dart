@@ -75,7 +75,10 @@ class GameCubit extends Cubit<GameState> {
   /// Updates the time and threat based on delta time (dt).
   void tick(double dt) {
     // Pause the game loop while any report overlay is visible.
-    if (state.isNewsReportPending || state.isReportPending) return;
+    if (state.isNewsReportPending ||
+        state.isReportPending ||
+        state.isCctvEventPending)
+      return;
     if (state.terroristThreat >= Consts.maxThreatLevel) return;
 
     _pendingDt += dt;
@@ -192,6 +195,24 @@ class GameCubit extends Cubit<GameState> {
     return citizens
         .where((c) => !c.isDetained && c.riskScore > Consts.highRiskThreshold)
         .length;
+  }
+
+  /// Triggers the CCTV surveillance mini-game overlay.
+  void triggerCctvEvent() {
+    emit(state.copyWith(isCctvEventPending: true));
+  }
+
+  /// Called by [CCTVOverlay] when the player resolves the mini-game.
+  /// [success] = true → player clicked the red face in time.
+  void resolveCctvEvent(bool success) {
+    final delta = success
+        ? -Consts.cctvSuccessThreatDelta
+        : Consts.cctvFailureThreatDelta;
+    final newThreat = (state.terroristThreat + delta).clamp(
+      Consts.minThreatLevel,
+      Consts.maxThreatLevel,
+    );
+    emit(state.copyWith(isCctvEventPending: false, terroristThreat: newThreat));
   }
 
   /// Action: Detain a citizen.

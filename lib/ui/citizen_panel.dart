@@ -96,6 +96,7 @@ class CitizenPanel extends StatelessWidget {
   }
 
   void _showCitizenDetails(BuildContext context, Citizen citizen) {
+    if (context.read<GameCubit>().state.isCctvEventPending) return;
     final cubit = context.read<GameCubit>();
     showDialog(
       context: context,

@@ -1,6 +1,6 @@
 class Consts {
   // --- Core progression ---
-  static const double dayDuration = 30.0;
+  static const double dayDuration = 300.0;
   static const double minThreatLevel = 0.0;
   static const double maxThreatLevel = 100.0;
 
@@ -47,4 +47,17 @@ class Consts {
   static const int highRiskPressureTriggerCount = 2;
   static const double highRiskPressureBasePerSecond = 0.118;
   static const double highRiskPressurePerCitizenPerSecond = 0.05;
+
+  // --- CCTV surveillance event ---
+  static const double cctvMinIntervalSeconds = 25.0;
+  static const double cctvMaxIntervalSeconds = 40.0;
+
+  /// Delay before the target face turns red after the overlay opens.
+  static const double cctvInitialScanSeconds = 0.9;
+
+  /// Click window in seconds once a target face turns red.
+  static const double cctvClickWindowSeconds = 2.0;
+  static const int cctvFaceCount = 15;
+  static const double cctvSuccessThreatDelta = 5.0;
+  static const double cctvFailureThreatDelta = 5.0;
 }

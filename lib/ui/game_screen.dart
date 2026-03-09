@@ -7,6 +7,7 @@ import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 import 'intro_screen.dart';
 import 'citizen_panel.dart';
+import 'cctv_overlay.dart';
 import 'intelligence_report_overlay.dart';
 import 'news_report_overlay.dart';
 
@@ -79,8 +80,27 @@ class _GameScreenContentState extends State<_GameScreenContent> {
               listenWhen: (previous, current) =>
                   (!previous.isNewsReportPending &&
                       current.isNewsReportPending) ||
-                  (!previous.isReportPending && current.isReportPending),
+                  (!previous.isReportPending && current.isReportPending) ||
+                  (!previous.isCctvEventPending && current.isCctvEventPending),
               listener: (context, state) {
+                if (state.isCctvEventPending) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    barrierColor: Colors.transparent,
+                    builder: (dialogContext) => BlocProvider.value(
+                      value: context.read<GameCubit>(),
+                      child: BlocListener<GameCubit, GameState>(
+                        listenWhen: (previous, current) =>
+                            previous.isCctvEventPending &&
+                            !current.isCctvEventPending,
+                        listener: (_, _) => Navigator.of(dialogContext).pop(),
+                        child: const CCTVOverlay(),
+                      ),
+                    ),
+                  );
+                  return;
+                }
                 if (state.isNewsReportPending &&
                     state.currentNewsReport != null) {
                   showDialog(
@@ -150,7 +170,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'TIME: ${(Consts.dayDuration - state.remainingTimeInDayInt).toInt()} / ${Consts.dayDuration.toInt()}',
+                        'TIME: ${((Consts.dayDuration - state.remainingTimeInDayInt) * 12 / Consts.dayDuration).toInt()} / 12',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,

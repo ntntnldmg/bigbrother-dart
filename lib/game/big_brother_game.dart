@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'cctv_event_component.dart';
 import 'game_cubit.dart';
 
 /// The main game class extending FlameGame.
@@ -10,9 +11,8 @@ class BigBrotherGame extends FlameGame {
 
   @override
   Future<void> onLoad() async {
-    // Initialization logic goes here
-    // e.g., loading assets, adding initial components
     await super.onLoad();
+    add(CCTVEventComponent(gameCubit));
   }
 
   @override

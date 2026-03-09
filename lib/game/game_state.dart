@@ -25,6 +25,9 @@ class GameState extends Equatable {
   /// The game tick is paused until the player acknowledges the report.
   final bool isReportPending;
 
+  /// True while the CCTV surveillance mini-game overlay is active.
+  final bool isCctvEventPending;
+
   const GameState({
     required this.currentDay,
     required this.terroristThreat,
@@ -36,6 +39,7 @@ class GameState extends Equatable {
     this.currentNewsReport,
     this.isNewsReportPending = false,
     this.isReportPending = false,
+    this.isCctvEventPending = false,
   });
 
   /// Factory for the initial game state.
@@ -62,6 +66,7 @@ class GameState extends Equatable {
     NewsReport? currentNewsReport,
     bool? isNewsReportPending,
     bool? isReportPending,
+    bool? isCctvEventPending,
   }) {
     return GameState(
       currentDay: currentDay ?? this.currentDay,
@@ -74,6 +79,7 @@ class GameState extends Equatable {
       currentNewsReport: currentNewsReport ?? this.currentNewsReport,
       isNewsReportPending: isNewsReportPending ?? this.isNewsReportPending,
       isReportPending: isReportPending ?? this.isReportPending,
+      isCctvEventPending: isCctvEventPending ?? this.isCctvEventPending,
     );
   }
 
@@ -91,5 +97,6 @@ class GameState extends Equatable {
     currentNewsReport,
     isNewsReportPending,
     isReportPending,
+    isCctvEventPending,
   ];
 }
