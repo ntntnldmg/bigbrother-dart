@@ -1,3 +1,4 @@
+import 'package:bigbrother/consts.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,9 @@ import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 import 'intro_screen.dart';
 import 'citizen_panel.dart';
+import 'cctv_overlay.dart';
+import 'intelligence_report_overlay.dart';
+import 'news_report_overlay.dart';
 
 /// The main screen where the game is rendered.
 class GameScreen extends StatelessWidget {
@@ -39,6 +43,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar(),
       body: Stack(
         children: [
           // The Flame game widget
@@ -66,11 +71,78 @@ class _GameScreenContentState extends State<_GameScreenContent> {
             ),
           ),
 
-          // Top right HUD for game state
+          // Top right HUD — also listens for a pending intelligence report
+          // and shows it as a proper full-screen overlay (dialog).
           Positioned(
             top: 20,
             right: 20,
-            child: BlocBuilder<GameCubit, GameState>(
+            child: BlocConsumer<GameCubit, GameState>(
+              listenWhen: (previous, current) =>
+                  (!previous.isNewsReportPending &&
+                      current.isNewsReportPending) ||
+                  (!previous.isReportPending && current.isReportPending) ||
+                  (!previous.isCctvEventPending && current.isCctvEventPending),
+              listener: (context, state) {
+                if (state.isCctvEventPending) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    barrierColor: Colors.transparent,
+                    builder: (dialogContext) => BlocProvider.value(
+                      value: context.read<GameCubit>(),
+                      child: BlocListener<GameCubit, GameState>(
+                        listenWhen: (previous, current) =>
+                            previous.isCctvEventPending &&
+                            !current.isCctvEventPending,
+                        listener: (_, _) => Navigator.of(dialogContext).pop(),
+                        child: const CCTVOverlay(),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                if (state.isNewsReportPending &&
+                    state.currentNewsReport != null) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    barrierColor: Colors.transparent,
+                    builder: (dialogContext) => BlocProvider.value(
+                      value: context.read<GameCubit>(),
+                      child: BlocListener<GameCubit, GameState>(
+                        listenWhen: (previous, current) =>
+                            previous.isNewsReportPending &&
+                            !current.isNewsReportPending,
+                        listener: (_, _) => Navigator.of(dialogContext).pop(),
+                        child: NewsReportOverlay(
+                          report: state.currentNewsReport!,
+                        ),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                if (state.isReportPending && state.currentReport != null) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    barrierColor: Colors.transparent,
+                    builder: (dialogContext) => BlocProvider.value(
+                      value: context.read<GameCubit>(),
+                      child: BlocListener<GameCubit, GameState>(
+                        listenWhen: (previous, current) =>
+                            previous.isReportPending &&
+                            !current.isReportPending,
+                        listener: (_, _) => Navigator.of(dialogContext).pop(),
+                        child: IntelligenceReportOverlay(
+                          report: state.currentReport!,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
               buildWhen: (previous, current) =>
                   previous.currentDay != current.currentDay ||
                   previous.remainingTimeInDayInt !=
@@ -98,7 +170,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'TIME: ${12 - (state.remainingTimeInDayInt / 30).toInt()} / 12',
+                        'TIME: ${((Consts.dayDuration - state.remainingTimeInDayInt) * 12 / Consts.dayDuration).toInt()} / 12',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -108,7 +180,8 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                       Text(
                         'THREAT LEVEL: ${state.terroristThreat.toStringAsFixed(1)}%',
                         style: TextStyle(
-                          color: state.terroristThreat > 80
+                          color:
+                              state.terroristThreat > Consts.threatWarningLevel
                               ? Colors.redAccent
                               : Colors.greenAccent,
                           fontSize: 18,

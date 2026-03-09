@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../consts.dart';
 import '../models/citizen.dart';
 import '../game/game_state.dart';
 import '../game/game_cubit.dart';
@@ -43,30 +44,46 @@ class CitizenPanel extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: state.todayCitizens.length,
-                  itemBuilder: (context, index) {
-                    final citizen = state.todayCitizens[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 4.0,
-                      ),
-                      shape: const Border(
-                        bottom: BorderSide(color: Colors.white10),
-                      ),
-                      title: Text(
-                        'ID: ${citizen.idNumber}',
-                        style: const TextStyle(
-                          color: Colors.greenAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '${citizen.occupation.toUpperCase()} // AGE: ${citizen.ageGroup}',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      onTap: () => _showCitizenDetails(context, citizen),
+                child: Builder(
+                  builder: (context) {
+                    // Free citizens first, detained at the bottom.
+                    final sorted = [
+                      ...state.todayCitizens.where((c) => !c.isDetained),
+                      ...state.todayCitizens.where((c) => c.isDetained),
+                    ];
+                    return ListView.builder(
+                      itemCount: sorted.length,
+                      itemBuilder: (context, index) {
+                        final citizen = sorted[index];
+                        final dimmed = citizen.isDetained;
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 4.0,
+                          ),
+                          shape: const Border(
+                            bottom: BorderSide(color: Colors.white10),
+                          ),
+                          title: Text(
+                            'ID: ${citizen.idNumber}',
+                            style: TextStyle(
+                              color: dimmed
+                                  ? Colors.white30
+                                  : Colors.greenAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            dimmed
+                                ? '[DETAINED] ${citizen.occupation.toUpperCase()}'
+                                : '${citizen.occupation.toUpperCase()} // AGE: ${citizen.ageGroup}',
+                            style: TextStyle(
+                              color: dimmed ? Colors.white24 : Colors.white70,
+                            ),
+                          ),
+                          onTap: () => _showCitizenDetails(context, citizen),
+                        );
+                      },
                     );
                   },
                 ),
@@ -79,6 +96,7 @@ class CitizenPanel extends StatelessWidget {
   }
 
   void _showCitizenDetails(BuildContext context, Citizen citizen) {
+    if (context.read<GameCubit>().state.isCctvEventPending) return;
     final cubit = context.read<GameCubit>();
     showDialog(
       context: context,
@@ -104,11 +122,13 @@ class _CitizenDetailDialog extends StatefulWidget {
 
 class _CitizenDetailDialogState extends State<_CitizenDetailDialog> {
   late bool _isInvestigated;
+  late bool _isDetained;
 
   @override
   void initState() {
     super.initState();
     _isInvestigated = widget.citizen.isInvestigated;
+    _isDetained = widget.citizen.isDetained;
   }
 
   @override
@@ -119,6 +139,23 @@ class _CitizenDetailDialogState extends State<_CitizenDetailDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              const Text(
+                'STATUS: ',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                _isDetained ? 'DETAINED' : 'FREE',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: _isDetained ? Colors.redAccent : Colors.greenAccent,
+                  letterSpacing: 2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Text('Age Group: ${widget.citizen.ageGroup}'),
           Text('Occupation: ${widget.citizen.occupation}'),
           Text('Religion: ${widget.citizen.religion}'),
@@ -130,7 +167,7 @@ class _CitizenDetailDialogState extends State<_CitizenDetailDialog> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: widget.citizen.riskScore > 60
+                color: widget.citizen.riskScore > Consts.detainGoodThreshold
                     ? Colors.red
                     : Colors.greenAccent,
               ),
@@ -142,7 +179,8 @@ class _CitizenDetailDialogState extends State<_CitizenDetailDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: _isInvestigated
+                // Disabled if already investigated or detained
+                onPressed: (_isInvestigated || _isDetained)
                     ? null
                     : () {
                         widget.cubit.investigateCitizen(widget.citizen);
@@ -155,10 +193,12 @@ class _CitizenDetailDialogState extends State<_CitizenDetailDialog> {
                 child: const Text('INVESTIGATE'),
               ),
               ElevatedButton(
-                onPressed: () {
-                  widget.cubit.detainCitizen(widget.citizen);
-                  Navigator.of(context).pop();
-                },
+                onPressed: _isDetained
+                    ? null
+                    : () {
+                        widget.cubit.detainCitizen(widget.citizen);
+                        setState(() => _isDetained = true);
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   foregroundColor: Colors.black,

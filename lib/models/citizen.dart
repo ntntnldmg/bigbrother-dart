@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
 
+import '../consts.dart';
+import 'intelligence_report.dart';
+
 /// Represents a citizen in the game world.
 class Citizen extends Equatable {
   final String idNumber;
@@ -14,6 +17,9 @@ class Citizen extends Equatable {
   /// Track if the player has investigated this citizen
   final bool isInvestigated;
 
+  /// Track if the citizen is currently in custody
+  final bool isDetained;
+
   const Citizen({
     required this.idNumber,
     required this.ageGroup,
@@ -22,6 +28,7 @@ class Citizen extends Equatable {
     required this.ethnicity,
     required this.riskScore,
     this.isInvestigated = false,
+    this.isDetained = false,
   });
 
   Citizen copyWith({
@@ -32,6 +39,7 @@ class Citizen extends Equatable {
     String? ethnicity,
     double? riskScore,
     bool? isInvestigated,
+    bool? isDetained,
   }) {
     return Citizen(
       idNumber: idNumber ?? this.idNumber,
@@ -41,6 +49,7 @@ class Citizen extends Equatable {
       ethnicity: ethnicity ?? this.ethnicity,
       riskScore: riskScore ?? this.riskScore,
       isInvestigated: isInvestigated ?? this.isInvestigated,
+      isDetained: isDetained ?? this.isDetained,
     );
   }
 
@@ -53,5 +62,42 @@ class Citizen extends Equatable {
     ethnicity,
     riskScore,
     isInvestigated,
+    isDetained,
   ];
+
+  /// Returns the risk score with the daily intelligence modifier applied.
+  /// The base [riskScore] is never mutated — this is a read-only calculation.
+  double effectiveRiskScore(IntelligenceReport? report) {
+    if (report == null) return riskScore;
+    final citizenValue = switch (report.focusCategory) {
+      'ageGroup' => ageGroup,
+      'occupation' => occupation,
+      'religion' => religion,
+      'ethnicity' => ethnicity,
+      _ => null,
+    };
+    if (citizenValue?.toLowerCase() == report.focusValue.toLowerCase()) {
+      return (riskScore + Consts.intelligenceRiskModifier).clamp(
+        Consts.minThreatLevel,
+        Consts.maxThreatLevel,
+      );
+    }
+    return riskScore;
+  }
+
+  @override
+  String toString() {
+    return '''
+{
+  idNumber: $idNumber,
+  ageGroup: $ageGroup,
+  occupation: $occupation,
+  religion: $religion,
+  ethnicity: $ethnicity,
+  riskScore: $riskScore,
+  isInvestigated: $isInvestigated,
+  isDetained: $isDetained
+}
+''';
+  }
 }
