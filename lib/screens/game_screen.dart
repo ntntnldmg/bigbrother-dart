@@ -131,9 +131,37 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const ResidentPanel(),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.greenAccent,
+                          ),
+                          tooltip: 'Home Screen',
+                          onPressed: () async {
+                            final navigator = Navigator.of(context);
+                            await _stopGameplayMusic();
+                            if (!mounted) return;
+                            navigator.pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => const IntroScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: ResidentPanel(),
+                        ),
+                      ),
                       const SizedBox(width: 22),
                       Expanded(
+                        flex: 5,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -156,27 +184,6 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                               builder: (context, state) {
                                 return TopStatusHud(state: state);
                               },
-                            ),
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.power_settings_new,
-                                  color: Colors.greenAccent,
-                                ),
-                                tooltip: 'Terminate Session',
-                                onPressed: () async {
-                                  final navigator = Navigator.of(context);
-                                  await _stopGameplayMusic();
-                                  if (!mounted) return;
-                                  navigator.pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) => const IntroScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
                             ),
                             const Spacer(),
                           ],
