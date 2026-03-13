@@ -24,6 +24,10 @@ class GameCubit extends Cubit<GameState> {
   double _highRiskPressureAccumulator = 0.0;
   int _sampledHighRiskFreeCount = 0;
 
+  // Threat rises in visible bursts instead of continuously.
+  double _pendingPassiveThreat = 0.0;
+  double _threatPauseRemaining = 0.0;
+
   GameState _freshSimulationState() {
     return GameState.initial().copyWith(
       hasStartedGame: true,
@@ -39,6 +43,8 @@ class GameCubit extends Cubit<GameState> {
     _riskDriftAccumulator = 0.0;
     _highRiskPressureAccumulator = 0.0;
     _sampledHighRiskFreeCount = 0;
+    _pendingPassiveThreat = 0.0;
+    _threatPauseRemaining = _nextThreatPauseSeconds();
   }
 
   // Residents are generated once when the game session starts and persist
@@ -57,6 +63,8 @@ class GameCubit extends Cubit<GameState> {
   void _startNewDay({required int newDay, required double currentThreat}) {
     _highRiskPressureAccumulator = 0.0;
     _sampledHighRiskFreeCount = 0;
+    _pendingPassiveThreat = 0.0;
+    _threatPauseRemaining = _nextThreatPauseSeconds();
 
     // Generate both daily reports. Flow is:
     // 1) show news bulletin
@@ -114,23 +122,8 @@ class GameCubit extends Cubit<GameState> {
     _pendingDt = 0.0;
 
     double newTime = state.remainingTimeInDay - effectiveDt;
-    double newThreat =
-        (state.terroristThreat + Consts.threatRatePerSecond * effectiveDt)
-            .clamp(Consts.minThreatLevel, Consts.maxThreatLevel);
-
-    if (newThreat >= Consts.maxThreatLevel) {
-      emit(
-        state.copyWith(
-          hasStartedGame: true,
-          isGameOver: true,
-          terroristThreat: Consts.maxThreatLevel,
-          isNewsReportPending: false,
-          isReportPending: false,
-          isCctvEventPending: false,
-        ),
-      );
-      return;
-    }
+    double passiveThreatDelta = Consts.threatRatePerSecond * effectiveDt;
+    double newThreat = state.terroristThreat;
 
     if (newTime <= 0) {
       _startNewDay(newDay: state.currentDay + 1, currentThreat: newThreat);
@@ -168,11 +161,16 @@ class GameCubit extends Cubit<GameState> {
           Consts.highRiskPressureBasePerSecond +
           (Consts.highRiskPressurePerResidentPerSecond *
               _sampledHighRiskFreeCount);
-      newThreat = (newThreat + hiddenThreatRate * effectiveDt).clamp(
-        Consts.minThreatLevel,
-        Consts.maxThreatLevel,
-      );
+      passiveThreatDelta += hiddenThreatRate * effectiveDt;
     }
+
+    newThreat =
+        (newThreat +
+                _releasePassiveThreatBurst(
+                  dt: effectiveDt,
+                  passiveThreatDelta: passiveThreatDelta,
+                ))
+            .clamp(Consts.minThreatLevel, Consts.maxThreatLevel);
 
     final gameOver = newThreat >= Consts.maxThreatLevel;
 
@@ -300,6 +298,46 @@ class GameCubit extends Cubit<GameState> {
 
   double _randomDelaySeconds({required int min, required int max}) =>
       min + _random.nextInt(max - min + 1).toDouble();
+
+  double _nextThreatPauseSeconds() {
+    return Consts.threatPauseMinSeconds.toDouble() +
+        _random.nextInt(
+          Consts.threatPauseMaxSeconds - Consts.threatPauseMinSeconds + 1,
+        );
+  }
+
+  double _releasePassiveThreatBurst({
+    required double dt,
+    required double passiveThreatDelta,
+  }) {
+    if (dt <= 0) return 0.0;
+
+    var releasedThreat = 0.0;
+    var remainingDt = dt;
+    final passiveThreatRate = passiveThreatDelta / dt;
+
+    while (remainingDt > 0) {
+      if (_threatPauseRemaining <= 0) {
+        _threatPauseRemaining = _nextThreatPauseSeconds();
+      }
+
+      final chunk = remainingDt < _threatPauseRemaining
+          ? remainingDt
+          : _threatPauseRemaining;
+
+      _pendingPassiveThreat += passiveThreatRate * chunk;
+      _threatPauseRemaining -= chunk;
+      remainingDt -= chunk;
+
+      if (_threatPauseRemaining <= 0) {
+        releasedThreat += _pendingPassiveThreat;
+        _pendingPassiveThreat = 0.0;
+        _threatPauseRemaining = _nextThreatPauseSeconds();
+      }
+    }
+
+    return releasedThreat;
+  }
 
   Resident? _findResidentById(String id) {
     for (final resident in state.todayResidents) {

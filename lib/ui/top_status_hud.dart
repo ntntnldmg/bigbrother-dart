@@ -1,3 +1,4 @@
+import 'package:bigbrother/app_typography.dart';
 import 'package:bigbrother/consts.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class TopStatusHud extends StatelessWidget {
         final veryCompact = constraints.maxWidth < 700;
         final dayCounterSize = veryCompact ? 92.0 : (compact ? 112.0 : 142.0);
 
-        final labelStyle = TextStyle(
+        final labelStyle = AppTypography.mono(
           color: AppColors.bluishWhite,
           fontSize: veryCompact ? 14 : (compact ? 16 : 21),
           fontWeight: FontWeight.w400,
@@ -67,7 +68,7 @@ class TopStatusHud extends StatelessWidget {
                       children: [
                         Text(
                           'STATUS',
-                          style: TextStyle(
+                          style: AppTypography.mono(
                             color: AppColors.green,
                             fontSize: veryCompact ? 30 : (compact ? 36 : 45),
                             fontWeight: FontWeight.w400,
@@ -76,15 +77,26 @@ class TopStatusHud extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
-                        Text(
-                          'Terrorist Threat: ${state.terroristThreat.toStringAsFixed(1)} %',
-                          style: TextStyle(
-                            color: AppColors.red,
-                            fontSize: veryCompact ? 17 : (compact ? 21 : 27),
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 1.0,
-                            height: 1.0,
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(end: state.terroristThreat),
+                          duration: const Duration(
+                            milliseconds: Consts.threatDisplayAnimationMs,
                           ),
+                          curve: Curves.easeInOut,
+                          builder: (context, animatedThreat, child) {
+                            return Text(
+                              'Terrorist Threat: ${animatedThreat.toStringAsFixed(1)} %',
+                              style: AppTypography.mono(
+                                color: AppColors.red,
+                                fontSize: veryCompact
+                                    ? 17
+                                    : (compact ? 21 : 27),
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 1.0,
+                                height: 1.0,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

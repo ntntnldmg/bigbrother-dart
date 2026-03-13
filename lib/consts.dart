@@ -52,6 +52,11 @@ class Consts {
   static const double arrestThreatDelta = 10.0;
   static const double threatWarningLevel = 80.0;
 
+  // --- Threat presentation cadence ---
+  static const int threatPauseMinSeconds = 3;
+  static const int threatPauseMaxSeconds = 8;
+  static const int threatDisplayAnimationMs = 800;
+
   // --- Action workflow timings (seconds) ---
   static const int investigationDelayMinSeconds = 90;
   static const int investigationDelayMaxSeconds = 120;
