@@ -36,7 +36,7 @@ class _ResidentListItemState extends State<ResidentListItem> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          color: _hovered ? AppColors.hoverBackground : Colors.transparent,
+          color: _hovered ? AppColors.hoverBackground : AppColors.transparent,
           child: Column(
             children: [
               Padding(

@@ -17,7 +17,7 @@ class ResidentDatabaseHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
-              color: const Color(0xFF071F30),
+              color: AppColors.residentHeaderBackground,
               border: Border(
                 bottom: BorderSide(color: AppColors.green, width: 1.5),
                 right: BorderSide(color: AppColors.green, width: 1.5),

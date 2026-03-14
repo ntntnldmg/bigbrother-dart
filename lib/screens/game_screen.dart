@@ -2,17 +2,20 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../consts.dart';
 import '../audio/audio_settings.dart';
 import '../game/big_brother_game.dart';
 import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 import 'intro_screen.dart';
-import '../ui/resident_panel.dart';
+import '../ui/widgets/resident_panel.dart';
 import '../ui/cctv_overlay.dart';
 import '../ui/intelligence_report_overlay.dart';
 import '../ui/news_report_overlay.dart';
 import '../ui/game_over_overlay.dart';
-import '../ui/top_status_hud.dart';
+import '../ui/widgets/breaking_news_ticker.dart';
+import '../ui/widgets/cctv_wall.dart';
+import '../ui/widgets/top_status_hud.dart';
 
 /// The main screen where the game is rendered.
 class GameScreen extends StatelessWidget {
@@ -43,7 +46,12 @@ class _GameScreenContentState extends State<_GameScreenContent> {
     super.initState();
     // Initialize the Flame game instance, passing the cubit
     _game = BigBrotherGame(context.read<GameCubit>());
-    _syncGameplayMusic(context.read<GameCubit>().state);
+    final initialState = context.read<GameCubit>().state;
+    _syncGameplayMusic(initialState);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _presentPendingOverlay(initialState);
+    });
   }
 
   @override
@@ -99,6 +107,81 @@ class _GameScreenContentState extends State<_GameScreenContent> {
     }
   }
 
+  void _presentPendingOverlay(GameState state) {
+    if (!mounted) return;
+
+    if (state.isGameOver) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: AppColors.transparent,
+        builder: (dialogContext) => BlocProvider.value(
+          value: context.read<GameCubit>(),
+          child: BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) =>
+                previous.isGameOver && !current.isGameOver,
+            listener: (_, _) => Navigator.of(dialogContext).pop(),
+            child: const GameOverOverlay(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (state.isCctvEventPending) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: AppColors.transparent,
+        builder: (dialogContext) => BlocProvider.value(
+          value: context.read<GameCubit>(),
+          child: BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) =>
+                previous.isCctvEventPending && !current.isCctvEventPending,
+            listener: (_, _) => Navigator.of(dialogContext).pop(),
+            child: const CCTVOverlay(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (state.isNewsReportPending && state.currentNewsReport != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: AppColors.transparent,
+        builder: (dialogContext) => BlocProvider.value(
+          value: context.read<GameCubit>(),
+          child: BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) =>
+                previous.isNewsReportPending && !current.isNewsReportPending,
+            listener: (_, _) => Navigator.of(dialogContext).pop(),
+            child: NewsReportOverlay(report: state.currentNewsReport!),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (state.isReportPending && state.currentReport != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: AppColors.transparent,
+        builder: (dialogContext) => BlocProvider.value(
+          value: context.read<GameCubit>(),
+          child: BlocListener<GameCubit, GameState>(
+            listenWhen: (previous, current) =>
+                previous.isReportPending && !current.isReportPending,
+            listener: (_, _) => Navigator.of(dialogContext).pop(),
+            child: IntelligenceReportOverlay(report: state.currentReport!),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<GameCubit, GameState>(
@@ -127,7 +210,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
             Positioned.fill(
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 52),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -136,7 +219,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                         child: IconButton(
                           icon: const Icon(
                             Icons.power_settings_new,
-                            color: Colors.greenAccent,
+                            color: AppColors.green,
                           ),
                           tooltip: 'Home Screen',
                           onPressed: () async {
@@ -185,13 +268,24 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                                 return TopStatusHud(state: state);
                               },
                             ),
-                            const Spacer(),
+                            const SizedBox(height: 16),
+                            const Expanded(child: CctvWall()),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
+              ),
+            ),
+
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BreakingNewsTicker(
+                headline:
+                    'Detained father of four claims innocence: "I was only trying to buy a pair of pliers for my garden!"',
               ),
             ),
 
@@ -203,84 +297,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                       current.isNewsReportPending) ||
                   (!previous.isReportPending && current.isReportPending) ||
                   (!previous.isCctvEventPending && current.isCctvEventPending),
-              listener: (context, state) {
-                if (state.isGameOver) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    barrierColor: Colors.transparent,
-                    builder: (dialogContext) => BlocProvider.value(
-                      value: context.read<GameCubit>(),
-                      child: BlocListener<GameCubit, GameState>(
-                        listenWhen: (previous, current) =>
-                            previous.isGameOver && !current.isGameOver,
-                        listener: (_, _) => Navigator.of(dialogContext).pop(),
-                        child: const GameOverOverlay(),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                if (state.isCctvEventPending) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    barrierColor: Colors.transparent,
-                    builder: (dialogContext) => BlocProvider.value(
-                      value: context.read<GameCubit>(),
-                      child: BlocListener<GameCubit, GameState>(
-                        listenWhen: (previous, current) =>
-                            previous.isCctvEventPending &&
-                            !current.isCctvEventPending,
-                        listener: (_, _) => Navigator.of(dialogContext).pop(),
-                        child: const CCTVOverlay(),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                if (state.isNewsReportPending &&
-                    state.currentNewsReport != null) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    barrierColor: Colors.transparent,
-                    builder: (dialogContext) => BlocProvider.value(
-                      value: context.read<GameCubit>(),
-                      child: BlocListener<GameCubit, GameState>(
-                        listenWhen: (previous, current) =>
-                            previous.isNewsReportPending &&
-                            !current.isNewsReportPending,
-                        listener: (_, _) => Navigator.of(dialogContext).pop(),
-                        child: NewsReportOverlay(
-                          report: state.currentNewsReport!,
-                        ),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-
-                if (state.isReportPending && state.currentReport != null) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    barrierColor: Colors.transparent,
-                    builder: (dialogContext) => BlocProvider.value(
-                      value: context.read<GameCubit>(),
-                      child: BlocListener<GameCubit, GameState>(
-                        listenWhen: (previous, current) =>
-                            previous.isReportPending &&
-                            !current.isReportPending,
-                        listener: (_, _) => Navigator.of(dialogContext).pop(),
-                        child: IntelligenceReportOverlay(
-                          report: state.currentReport!,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              },
+              listener: (_, state) => _presentPendingOverlay(state),
               child: const SizedBox.shrink(),
             ),
           ],

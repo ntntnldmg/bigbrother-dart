@@ -2,7 +2,7 @@ import 'package:bigbrother/app_typography.dart';
 import 'package:bigbrother/consts.dart';
 import 'package:flutter/material.dart';
 
-import '../game/game_state.dart';
+import '../../game/game_state.dart';
 import 'day_counter_widget.dart';
 
 class TopStatusHud extends StatelessWidget {
@@ -55,9 +55,9 @@ class TopStatusHud extends StatelessWidget {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      Color(0x730C4D66),
-                      Color(0x2A0B1E2B),
-                      Color(0x12050F16),
+                      AppColors.statusGradientStart,
+                      AppColors.statusGradientMid,
+                      AppColors.statusGradientEnd,
                     ],
                     stops: [0.0, 0.42, 1.0],
                   ),
