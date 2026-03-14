@@ -21,6 +21,55 @@ class AppColors {
 
   /// Dark fill used inside the day-counter circle.
   static const Color circleFill = Color(0xFF0C2A2A);
+
+  /// Fully transparent color for overlays and barriers.
+  static const Color transparent = Color(0x00000000);
+
+  /// Core neutrals used by the app shell.
+  static const Color black = Color(0xFF000000);
+  static const Color appBackground = Color(0xFF1A1A1A);
+  static const Color surface = Color(0xFF111111);
+
+  /// Primary text tones.
+  static const Color textPrimary = Color(0xffceecf8);
+  static const Color textSecondary = Color(0xb3ceecf8);
+  static const Color textMuted = Color(0x8aceecf8);
+  static const Color textLowEmphasis = Color(0x3dceecf8);
+  static const Color textDisabled = Color(0x1fceecf8);
+
+  /// Shared panel/background tones.
+  static const Color residentPanelBackground = Color(0xFF061828);
+  static const Color residentHeaderBackground = Color(0xFF071F30);
+
+  /// Overlay and dialog scrims.
+  static const Color reportOverlayScrim = Color(0xE8000000);
+  static const Color reportOverlayScrimAlt = Color(0xE6000000);
+  static const Color gameOverScrim = Color(0xF0000000);
+  static const Color cctvScrim = Color(0xF5000000);
+
+  /// Status/HUD gradients.
+  static const Color statusGradientStart = Color(0x730C4D66);
+  static const Color statusGradientMid = Color(0x2A0B1E2B);
+  static const Color statusGradientEnd = Color(0x12050F16);
+
+  /// Resident details panel gradient.
+  static const Color detailsGradientStart = Color(0xA70C7DBB);
+  static const Color detailsGradientSecond = Color(0x8E0A5A89);
+  static const Color detailsGradientThird = Color(0x5B081F38);
+  static const Color detailsGradientEnd = Color(0x33061222);
+
+  /// Exposition screen atmosphere.
+  static const Color expositionBackground = Color(0xFF080B08);
+  static const Color expositionGradientTop = Color(0xFF0F1D10);
+  static const Color expositionGradientBottom = Color(0xFF070907);
+  static const Color expositionCardBackground = Color(0xCC000000);
+
+  /// News/intel panel surfaces.
+  static const Color reportPanelBackground = Color(0xFF020402);
+
+  /// Utility aliases.
+  static const Color danger = red;
+  static const Color success = green;
 }
 
 class Consts {

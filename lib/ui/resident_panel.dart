@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../consts.dart';
 import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 import '../models/resident.dart';
@@ -48,8 +49,8 @@ class _ResidentPanelState extends State<ResidentPanel> {
         return Container(
           width: 290,
           decoration: BoxDecoration(
-            color: const Color(0xFF061828),
-            border: Border.all(color: const Color(0xff6eb5bb), width: 1.5),
+            color: AppColors.residentPanelBackground,
+            border: Border.all(color: AppColors.green, width: 1.5),
           ),
           child: Column(
             children: [

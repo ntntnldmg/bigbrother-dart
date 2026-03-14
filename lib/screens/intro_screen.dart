@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app_typography.dart';
 import '../audio/audio_settings.dart';
+import '../consts.dart';
 import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 import 'exposition_screen.dart';
@@ -152,7 +153,7 @@ class _IntroScreenState extends State<IntroScreen> {
                     onChanged: (value) {
                       setDialogState(() => tempSoundEnabled = value);
                     },
-                    activeThumbColor: Colors.greenAccent,
+                    activeThumbColor: AppColors.green,
                   ),
                 ],
               ),
@@ -189,7 +190,7 @@ class _IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: AppColors.appBackground,
       body: BlocBuilder<GameCubit, GameState>(
         buildWhen: (previous, current) =>
             previous.hasStartedGame != current.hasStartedGame,
@@ -223,7 +224,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           Text(
                             credit.title!,
                             style: AppTypography.mono(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 42,
                               letterSpacing: 2,
                               fontWeight: FontWeight.w600,
@@ -234,7 +235,7 @@ class _IntroScreenState extends State<IntroScreen> {
                           Text(
                             credit.subtitle!,
                             style: AppTypography.mono(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 56,
                               letterSpacing: 1,
                               fontWeight: FontWeight.w600,
@@ -304,8 +305,8 @@ class _SoundPrompt extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.black,
-          border: Border.all(color: Colors.greenAccent, width: 2),
+          color: AppColors.black,
+          border: Border.all(color: AppColors.green, width: 2),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -313,7 +314,7 @@ class _SoundPrompt extends StatelessWidget {
             Text(
               'Enable Sound',
               style: AppTypography.mono(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontSize: 32,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w700,
@@ -351,7 +352,10 @@ class _MenuButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             label,
-            style: AppTypography.mono(fontSize: 22, color: Colors.white),
+            style: AppTypography.mono(
+              fontSize: 22,
+              color: AppColors.textPrimary,
+            ),
             textAlign: TextAlign.center,
           ),
         ),

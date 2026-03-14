@@ -89,7 +89,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withAlpha(245),
+      color: AppColors.cctvScrim,
       child: Column(
         children: [
           // Header bar
@@ -97,9 +97,9 @@ class _CCTVOverlayState extends State<CCTVOverlay>
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: AppColors.black,
               border: const Border(
-                bottom: BorderSide(color: Colors.greenAccent, width: 2),
+                bottom: BorderSide(color: AppColors.green, width: 2),
               ),
             ),
             child: Row(
@@ -108,7 +108,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
                 const Text(
                   'CCTV // SECTOR 7 LIVE FEED',
                   style: TextStyle(
-                    color: Colors.greenAccent,
+                    color: AppColors.green,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
@@ -120,7 +120,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Colors.red,
+                        color: AppColors.red,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -128,7 +128,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
                     const Text(
                       'REC',
                       style: TextStyle(
-                        color: Colors.red,
+                        color: AppColors.red,
                         fontSize: 13,
                         letterSpacing: 2,
                       ),
@@ -147,7 +147,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
                   ? 'THREAT DETECTED — TAP TO NEUTRALISE'
                   : 'SCANNING CROWD...',
               style: TextStyle(
-                color: _targetVisible ? Colors.redAccent : Colors.white54,
+                color: _targetVisible ? AppColors.red : AppColors.textMuted,
                 fontSize: 14,
                 letterSpacing: 2,
               ),
@@ -162,11 +162,11 @@ class _CCTVOverlayState extends State<CCTVOverlay>
                 animation: _timerController,
                 builder: (_, _) => LinearProgressIndicator(
                   value: 1.0 - _timerController.value,
-                  backgroundColor: Colors.white12,
+                  backgroundColor: AppColors.textDisabled,
                   valueColor: AlwaysStoppedAnimation(
                     _timerController.value > 0.6
-                        ? Colors.redAccent
-                        : Colors.greenAccent,
+                        ? AppColors.red
+                        : AppColors.green,
                   ),
                   minHeight: 6,
                 ),
@@ -204,7 +204,7 @@ class _CCTVOverlayState extends State<CCTVOverlay>
             child: Text(
               'MINISTRY OF SECURITY — INTERNAL NETWORK //  AUTHORISED ONLY',
               style: TextStyle(
-                color: Colors.white24,
+                color: AppColors.textLowEmphasis,
                 fontSize: 11,
                 letterSpacing: 1.4,
               ),
@@ -247,7 +247,7 @@ class _FaceCellState extends State<_FaceCell>
 
   @override
   Widget build(BuildContext context) {
-    final boxColor = widget.isTarget ? Colors.redAccent : Colors.greenAccent;
+    final boxColor = widget.isTarget ? AppColors.red : AppColors.green;
     return AnimatedBuilder(
       animation: _pulse,
       builder: (_, _) {

@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import '../consts.dart';
 import 'cctv_event_component.dart';
 import 'game_cubit.dart';
 
@@ -11,7 +12,7 @@ class BigBrotherGame extends FlameGame {
   BigBrotherGame(this.gameCubit);
 
   @override
-  Color backgroundColor() => Colors.transparent;
+  Color backgroundColor() => AppColors.transparent;
 
   @override
   Future<void> onLoad() async {

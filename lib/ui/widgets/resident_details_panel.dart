@@ -43,10 +43,10 @@ class ResidentDetailsPanel extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            Color(0xA70C7DBB),
-            Color(0x8E0A5A89),
-            Color(0x5B081F38),
-            Color(0x33061222),
+            AppColors.detailsGradientStart,
+            AppColors.detailsGradientSecond,
+            AppColors.detailsGradientThird,
+            AppColors.detailsGradientEnd,
           ],
           stops: [0.0, 0.18, 0.55, 1.0],
         ),
@@ -280,7 +280,7 @@ class _ResidentActionButtonState extends State<_ResidentActionButton> {
     final active = widget.enabled;
     final background = _hovered && active
         ? AppColors.hoverBackground
-        : Colors.transparent;
+        : AppColors.transparent;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),

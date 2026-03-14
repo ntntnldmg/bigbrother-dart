@@ -2,6 +2,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../consts.dart';
 import '../audio/audio_settings.dart';
 import '../game/big_brother_game.dart';
 import '../game/game_cubit.dart';
@@ -111,7 +112,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        barrierColor: Colors.transparent,
+        barrierColor: AppColors.transparent,
         builder: (dialogContext) => BlocProvider.value(
           value: context.read<GameCubit>(),
           child: BlocListener<GameCubit, GameState>(
@@ -129,7 +130,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        barrierColor: Colors.transparent,
+        barrierColor: AppColors.transparent,
         builder: (dialogContext) => BlocProvider.value(
           value: context.read<GameCubit>(),
           child: BlocListener<GameCubit, GameState>(
@@ -147,7 +148,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        barrierColor: Colors.transparent,
+        barrierColor: AppColors.transparent,
         builder: (dialogContext) => BlocProvider.value(
           value: context.read<GameCubit>(),
           child: BlocListener<GameCubit, GameState>(
@@ -165,7 +166,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        barrierColor: Colors.transparent,
+        barrierColor: AppColors.transparent,
         builder: (dialogContext) => BlocProvider.value(
           value: context.read<GameCubit>(),
           child: BlocListener<GameCubit, GameState>(
@@ -216,7 +217,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                         child: IconButton(
                           icon: const Icon(
                             Icons.power_settings_new,
-                            color: Colors.greenAccent,
+                            color: AppColors.green,
                           ),
                           tooltip: 'Home Screen',
                           onPressed: () async {

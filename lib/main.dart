@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_typography.dart';
+import 'consts.dart';
 import 'game/game_cubit.dart';
 import 'screens/intro_screen.dart';
 
@@ -26,42 +27,39 @@ class BigBrotherApp extends StatelessWidget {
         title: 'Terrorist Threat',
         theme: ThemeData(
           brightness: Brightness.dark,
-          scaffoldBackgroundColor: Colors.black,
+          scaffoldBackgroundColor: AppColors.appBackground,
           // Global font for the whole game.
           fontFamily: AppTypography.ubuntuMonoFamily,
           textTheme: ubuntuMonoTheme,
           primaryTextTheme: ubuntuMonoTheme,
           colorScheme: const ColorScheme.dark(
-            primary: Colors.greenAccent,
-            secondary: Colors.redAccent,
-            surface: Color(0xFF111111),
+            primary: AppColors.green,
+            secondary: AppColors.red,
+            surface: AppColors.surface,
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               shape: const BeveledRectangleBorder(), // Sharp corners
-              side: const BorderSide(color: Colors.greenAccent),
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.greenAccent,
+              side: const BorderSide(color: AppColors.green),
+              backgroundColor: AppColors.black,
+              foregroundColor: AppColors.green,
               textStyle: AppTypography.mono(
                 fontWeight: FontWeight.bold,
                 letterSpacing: 2,
               ),
             ),
           ),
-          dialogTheme: DialogThemeData(
-            backgroundColor: Color(0xFF111111),
+          dialogTheme: const DialogThemeData(
+            backgroundColor: AppColors.surface,
             shape: const BeveledRectangleBorder(
-              side: BorderSide(color: Colors.greenAccent, width: 2),
+              side: BorderSide(color: AppColors.green, width: 2),
             ),
-            titleTextStyle: AppTypography.mono(
-              color: Colors.greenAccent,
+            titleTextStyle: TextStyle(
+              color: AppColors.green,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
-            contentTextStyle: AppTypography.mono(
-              color: Colors.greenAccent,
-              fontSize: 16,
-            ),
+            contentTextStyle: TextStyle(color: AppColors.green, fontSize: 16),
           ),
         ),
         home: const IntroScreen(),

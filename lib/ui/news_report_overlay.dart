@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../consts.dart';
 import '../game/game_cubit.dart';
 import '../models/news_report.dart';
 
@@ -41,17 +42,17 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        color: Colors.black.withAlpha(232),
+        color: AppColors.reportOverlayScrim,
         child: Center(
           child: Container(
             width: 700,
             padding: const EdgeInsets.all(36),
             decoration: BoxDecoration(
-              color: const Color(0xFF020402),
-              border: Border.all(color: Colors.greenAccent, width: 2),
-              boxShadow: const [
+              color: AppColors.reportPanelBackground,
+              border: Border.all(color: AppColors.green, width: 2),
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x6600FF66),
+                  color: AppColors.breakingNewsBackground,
                   blurRadius: 18,
                   spreadRadius: 1,
                 ),
@@ -67,7 +68,7 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
                     const Text(
                       'NATIONAL EMERGENCY NETWORK',
                       style: TextStyle(
-                        color: Colors.greenAccent,
+                        color: AppColors.green,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.2,
@@ -76,7 +77,7 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
                     Text(
                       'DAY ${widget.report.day}',
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.textMuted,
                         fontSize: 14,
                         letterSpacing: 2,
                       ),
@@ -84,12 +85,12 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
                   ],
                 ),
                 const SizedBox(height: 8),
-                Container(height: 2, color: Colors.greenAccent),
+                Container(height: 2, color: AppColors.green),
                 const SizedBox(height: 22),
                 Text(
                   widget.report.headline.toUpperCase(),
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.6,
@@ -105,7 +106,7 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
                     return Text(
                       text,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: AppColors.textSecondary,
                         fontSize: 16,
                         height: 1.7,
                         letterSpacing: 0.8,
@@ -116,12 +117,12 @@ class _NewsReportOverlayState extends State<NewsReportOverlay>
                 const SizedBox(height: 30),
                 Row(
                   children: const [
-                    Icon(Icons.sensors, color: Colors.orange, size: 16),
+                    Icon(Icons.sensors, color: AppColors.red, size: 16),
                     SizedBox(width: 8),
                     Text(
                       'DETAILS WITHHELD // THREAT CONTINUES',
                       style: TextStyle(
-                        color: Colors.orange,
+                        color: AppColors.red,
                         fontSize: 12,
                         letterSpacing: 1.4,
                       ),

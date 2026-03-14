@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app_typography.dart';
+import '../consts.dart';
 import '../game/game_cubit.dart';
 import '../game/game_state.dart';
 
@@ -35,7 +36,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       opacity: _isVisible ? 1 : 0,
       duration: const Duration(milliseconds: 800),
       child: Container(
-        color: Colors.black.withAlpha(240),
+        color: AppColors.gameOverScrim,
         child: Center(
           child: BlocBuilder<GameCubit, GameState>(
             buildWhen: (previous, current) =>
@@ -49,7 +50,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                   Text(
                     "CRIME PARADOX",
                     style: AppTypography.mono(
-                      color: Colors.redAccent,
+                      color: AppColors.red,
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 4,
@@ -60,7 +61,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     Text(
                       'Days Survived: ${state.currentDay}',
                       style: AppTypography.mono(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 22,
                       ),
                     ),
@@ -68,7 +69,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     Text(
                       'Total Arrests: ${state.arrestCount}',
                       style: AppTypography.mono(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 22,
                       ),
                     ),
@@ -76,7 +77,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     Text(
                       'Investigations Performed: ${state.investigationCount}',
                       style: AppTypography.mono(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 22,
                       ),
                     ),

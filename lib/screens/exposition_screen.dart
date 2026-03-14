@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app_typography.dart';
+import '../consts.dart';
 import '../game/game_cubit.dart';
 import 'game_screen.dart';
 
@@ -53,7 +54,7 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
     final page = _pages[_pageIndex];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF080B08),
+      backgroundColor: AppColors.expositionBackground,
       body: SafeArea(
         child: Stack(
           children: [
@@ -63,7 +64,10 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [const Color(0xFF0F1D10), const Color(0xFF070907)],
+                    colors: [
+                      AppColors.expositionGradientTop,
+                      AppColors.expositionGradientBottom,
+                    ],
                   ),
                 ),
               ),
@@ -77,14 +81,14 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(28),
                       decoration: BoxDecoration(
-                        color: const Color(0xCC000000),
+                        color: AppColors.expositionCardBackground,
                         border: Border.all(
-                          color: Colors.greenAccent.withAlpha(180),
+                          color: AppColors.green.withAlpha(180),
                           width: 2,
                         ),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Color(0x5500FF66),
+                            color: AppColors.breakingNewsBackground,
                             blurRadius: 20,
                             spreadRadius: 1,
                           ),
@@ -96,19 +100,19 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                           Text(
                             'CLASSIFIED BRIEFING',
                             style: AppTypography.mono(
-                              color: Colors.greenAccent,
+                              color: AppColors.green,
                               fontSize: 20,
                               letterSpacing: 2.2,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Container(height: 2, color: Colors.greenAccent),
+                          Container(height: 2, color: AppColors.green),
                           const SizedBox(height: 26),
                           Text(
                             page.title,
                             style: AppTypography.mono(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 38,
                               letterSpacing: 1.6,
                               fontWeight: FontWeight.w700,
@@ -121,7 +125,7 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                               child: Text(
                                 page.body,
                                 style: AppTypography.mono(
-                                  color: Colors.white70,
+                                  color: AppColors.textSecondary,
                                   fontSize: 24,
                                   letterSpacing: 0.6,
                                   height: 1.5,
@@ -138,8 +142,8 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                                 height: 4,
                                 margin: const EdgeInsets.only(right: 8),
                                 color: index == _pageIndex
-                                    ? Colors.greenAccent
-                                    : Colors.white24,
+                                    ? AppColors.green
+                                    : AppColors.textLowEmphasis,
                               ),
                             ),
                           ),
@@ -187,7 +191,7 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                   child: Text(
                     'SKIP EXPOSITION',
                     style: AppTypography.mono(
-                      color: Colors.white70,
+                      color: AppColors.textSecondary,
                       fontSize: 16,
                       letterSpacing: 1.8,
                       fontWeight: FontWeight.w700,
