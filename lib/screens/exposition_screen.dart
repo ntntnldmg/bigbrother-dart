@@ -1,7 +1,9 @@
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app_typography.dart';
+import '../audio/audio_settings.dart';
 import '../consts.dart';
 import '../game/game_cubit.dart';
 import 'game_screen.dart';
@@ -15,6 +17,10 @@ class ExpositionScreen extends StatefulWidget {
 
 class _ExpositionScreenState extends State<ExpositionScreen> {
   int _pageIndex = 0;
+  int _audioRequestId = 0;
+  String? _activeTrack;
+
+  static const List<String> _pageTracks = ['exposition.ogg', 'exposition2.ogg'];
 
   static const List<_ExpositionPageData> _pages = [
     _ExpositionPageData(
@@ -42,7 +48,69 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
 
   bool get _isLastPage => _pageIndex == _pages.length - 1;
 
-  void _startGame() {
+  @override
+  void initState() {
+    super.initState();
+    _syncPageAudio();
+  }
+
+  @override
+  void dispose() {
+    _stopExpositionAudio();
+    super.dispose();
+  }
+
+  Future<void> _startPageTrack(String trackName) async {
+    if (!AudioSettings.isEnabled) {
+      _activeTrack = null;
+      await FlameAudio.bgm.stop();
+      return;
+    }
+    if (_activeTrack == trackName) return;
+
+    final requestId = ++_audioRequestId;
+
+    Future<void> playOnce() async {
+      await FlameAudio.bgm.stop();
+      await FlameAudio.bgm.play(trackName);
+    }
+
+    try {
+      await playOnce();
+      if (!mounted || requestId != _audioRequestId) return;
+      _activeTrack = trackName;
+    } catch (error) {
+      if (error.toString().contains('AbortError')) {
+        await Future.delayed(const Duration(milliseconds: 220));
+        if (!mounted || requestId != _audioRequestId) return;
+        try {
+          await playOnce();
+          if (!mounted || requestId != _audioRequestId) return;
+          _activeTrack = trackName;
+          return;
+        } catch (_) {
+          // Fall through to generic handler below.
+        }
+      }
+      debugPrint('Exposition audio unavailable: $error');
+      _activeTrack = null;
+    }
+  }
+
+  Future<void> _stopExpositionAudio() async {
+    _audioRequestId++;
+    _activeTrack = null;
+    await FlameAudio.bgm.stop();
+  }
+
+  void _syncPageAudio() {
+    final track = _pageTracks[_pageIndex.clamp(0, _pageTracks.length - 1)];
+    _startPageTrack(track);
+  }
+
+  Future<void> _startGame() async {
+    await _stopExpositionAudio();
+    if (!mounted) return;
     context.read<GameCubit>().startNewSimulation();
     Navigator.of(
       context,
@@ -157,6 +225,7 @@ class _ExpositionScreenState extends State<ExpositionScreen> {
                                   return;
                                 }
                                 setState(() => _pageIndex += 1);
+                                _syncPageAudio();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
