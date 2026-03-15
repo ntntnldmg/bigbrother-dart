@@ -35,6 +35,7 @@ class GameCubit extends Cubit<GameState> {
     return GameState.initial().copyWith(
       hasStartedGame: true,
       isGameOver: false,
+      isTrueEnding: false,
       todayResidents: ResidentGenerator.generateDailyResidents(
         Consts.residentsPerDay,
       ),
@@ -107,6 +108,7 @@ class GameCubit extends Cubit<GameState> {
         isReportPending: false,
         isCctvEventPending: false,
         isEpiloguePending: false,
+        isTrueEnding: false,
       ),
     );
   }
@@ -148,6 +150,15 @@ class GameCubit extends Cubit<GameState> {
     double newThreat = state.terroristThreat;
 
     if (newTime <= 0) {
+      if (state.currentDay >= 5) {
+        _triggerEpilogueAtDayFiveEnd(
+          newThreat: newThreat,
+          updatedResidents: List<Resident>.from(state.todayResidents),
+          completedInvestigations: 0,
+          completedArrests: 0,
+        );
+        return;
+      }
       _startNewDay(newDay: state.currentDay + 1, currentThreat: newThreat);
       return;
     }
@@ -195,12 +206,22 @@ class GameCubit extends Cubit<GameState> {
             .clamp(Consts.minThreatLevel, Consts.maxThreatLevel);
 
     if (newThreat >= Consts.maxThreatLevel) {
-      _triggerEpilogue(
-        newThreat: newThreat,
-        newTime: newTime,
-        updatedResidents: updatedResidents,
-        completedInvestigations: completedInvestigations,
-        completedArrests: completedArrests,
+      emit(
+        state.copyWith(
+          hasStartedGame: true,
+          isGameOver: true,
+          isTrueEnding: false,
+          remainingTimeInDay: newTime,
+          investigationCount:
+              state.investigationCount + completedInvestigations,
+          arrestCount: state.arrestCount + completedArrests,
+          terroristThreat: newThreat,
+          todayResidents: updatedResidents,
+          isNewsReportPending: false,
+          isReportPending: false,
+          isCctvEventPending: false,
+          isEpiloguePending: false,
+        ),
       );
       return;
     }
@@ -222,9 +243,8 @@ class GameCubit extends Cubit<GameState> {
     );
   }
 
-  void _triggerEpilogue({
+  void _triggerEpilogueAtDayFiveEnd({
     required double newThreat,
-    required double newTime,
     required List<Resident> updatedResidents,
     required int completedInvestigations,
     required int completedArrests,
@@ -233,7 +253,7 @@ class GameCubit extends Cubit<GameState> {
       state.copyWith(
         hasStartedGame: true,
         isGameOver: false,
-        remainingTimeInDay: newTime,
+        remainingTimeInDay: 0,
         investigationCount: state.investigationCount + completedInvestigations,
         arrestCount: state.arrestCount + completedArrests,
         terroristThreat: newThreat,
@@ -242,6 +262,7 @@ class GameCubit extends Cubit<GameState> {
         isReportPending: false,
         isCctvEventPending: false,
         isEpiloguePending: true,
+        isTrueEnding: false,
       ),
     );
   }
@@ -422,11 +443,12 @@ class GameCubit extends Cubit<GameState> {
       emit(
         state.copyWith(
           hasStartedGame: true,
-          isGameOver: false,
+          isGameOver: true,
+          isTrueEnding: false,
           isCctvEventPending: false,
           isNewsReportPending: false,
           isReportPending: false,
-          isEpiloguePending: true,
+          isEpiloguePending: false,
           terroristThreat: newThreat,
         ),
       );
@@ -454,6 +476,7 @@ class GameCubit extends Cubit<GameState> {
         hasStartedGame: true,
         isEpiloguePending: false,
         isGameOver: false,
+        isTrueEnding: false,
       ),
     );
     Future.microtask(() {
@@ -463,6 +486,7 @@ class GameCubit extends Cubit<GameState> {
           hasStartedGame: true,
           isEpiloguePending: false,
           isGameOver: true,
+          isTrueEnding: true,
         ),
       );
     });
