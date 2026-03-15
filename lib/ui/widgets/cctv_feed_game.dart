@@ -60,7 +60,7 @@ class CctvFeedGame extends FlameGame {
     if (_isDisposing || !isLoaded || !isMounted) return;
     if (size.x <= 20 || size.y <= 20) return;
 
-    final isUnregistered = _random.nextDouble() < 0.07;
+    final isUnregistered = _random.nextDouble() < 0.17;
     final resident = isUnregistered
         ? _generateUnregisteredResident()
         : _pickRegisteredResident();
@@ -224,7 +224,7 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
     final aspectRatio = resident.sex.toLowerCase() == 'female'
         ? sprites.femaleAspect
         : sprites.maleAspect;
-    size = Vector2(spriteHeight * aspectRatio, spriteHeight);
+    size = Vector2(spriteHeight * aspectRatio, spriteHeight) * (resident.sex.toLowerCase() == 'female' ? 1.2 : 1.4);
     position = Vector2(laneX, -size.y);
     scale = Vector2.all(baseScale);
     sprite = _currentSprite;
