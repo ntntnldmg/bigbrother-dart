@@ -66,7 +66,9 @@ class CctvFeedGame extends FlameGame {
     if (resident == null) return;
 
     final aspectRatio = _aspectForResident(resident);
-    final lanePadding = ((_Walker.spriteHeight * aspectRatio) / 2) + 2;
+    final maxScale = 1 + Consts.cctvPerspectiveScaleFactor;
+    final lanePadding =
+        ((_Walker.spriteHeight * aspectRatio * maxScale) / 2) + 2;
     final x =
         lanePadding + _random.nextDouble() * max(1, size.x - (lanePadding * 2));
     final durationSeconds = 3 + _random.nextDouble() * 3; // 3..6
@@ -231,6 +233,13 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
     final velocity = travelDistance / travelDurationSeconds;
     position.y += velocity * dt;
 
+    final progress = ((position.y + size.y) / (game.size.y + size.y)).clamp(
+      0.0,
+      1.0,
+    );
+    final scaleValue = 1 + (progress * Consts.cctvPerspectiveScaleFactor);
+    scale = Vector2.all(scaleValue);
+
     _stepAccumulator += dt;
     while (_stepAccumulator >= 0.2) {
       _stepAccumulator -= 0.2;
@@ -261,10 +270,10 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
   }
 
   Rect get hitRect => Rect.fromLTWH(
-    position.x - (size.x * anchor.x),
-    position.y - (size.y * anchor.y),
-    size.x,
-    size.y,
+    position.x - ((size.x * scale.x) * anchor.x),
+    position.y - ((size.y * scale.y) * anchor.y),
+    size.x * scale.x,
+    size.y * scale.y,
   );
 
   Rect get registrationHitRect {
