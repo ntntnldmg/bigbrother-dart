@@ -144,10 +144,10 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                 previous.isEpiloguePending && !current.isEpiloguePending,
             listener: (_, current) {
               Navigator.of(dialogContext).pop();
-              // WidgetsBinding.instance.addPostFrameCallback((_) {
-              //   if (!mounted) return;
-              //   _presentPendingOverlay(context.read<GameCubit>().state);
-              // });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                _presentPendingOverlay(context.read<GameCubit>().state);
+              });
             },
             child: const EpilogueOverlay(),
           ),
@@ -337,10 +337,17 @@ class _GameScreenContentState extends State<_GameScreenContent> {
               left: 0,
               right: 0,
               bottom: 40,
-              child: BlocSelector<GameCubit, GameState, int>(
-                selector: (state) => state.currentDay,
-                builder: (context, currentDay) {
-                  return BreakingNewsTicker(day: currentDay);
+              child: BlocBuilder<GameCubit, GameState>(
+                buildWhen: (previous, current) =>
+                    previous.currentDay != current.currentDay ||
+                    previous.hasStartedGame != current.hasStartedGame,
+                builder: (context, state) {
+                  return BreakingNewsTicker(
+                    key: ValueKey(
+                      'news-${state.currentDay}-${state.hasStartedGame}',
+                    ),
+                    day: state.currentDay,
+                  );
                 },
               ),
             ),
