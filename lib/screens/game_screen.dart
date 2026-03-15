@@ -234,7 +234,7 @@ class _GameScreenContentState extends State<_GameScreenContent> {
             Positioned.fill(
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 52),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 102),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -251,7 +251,9 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                             if (!mounted) return;
                             navigator.pushReplacement(
                               MaterialPageRoute(
-                                builder: (context) => const IntroScreen(),
+                                builder: (context) => const IntroScreen(
+                                  playShortOpeningTrack: true,
+                                ),
                               ),
                             );
                           },
@@ -311,33 +313,33 @@ class _GameScreenContentState extends State<_GameScreenContent> {
                     'Detained father of four claims innocence: "I was only trying to buy a pair of pliers for my garden!"',
               ),
             ),
-            
+
             Positioned(
-            	left: 10,
-            	bottom: 0,
-            	child: Text(
-            		'MCTA',
-            		style: AppTypography.mono(
+              left: 10,
+              bottom: 0,
+              child: Text(
+                'MCTA',
+                style: AppTypography.mono(
                   color: AppColors.green,
                   fontSize: 23,
                   letterSpacing: 0.6,
                   height: 1.5,
                 ),
-            	),
+              ),
             ),
-            
+
             Positioned(
-            	right: 10,
-            	bottom: 0,
-            	child: Text(
-            		'SMSAIAAASS v.1.0.2.6',
-            		style: AppTypography.mono(
+              right: 10,
+              bottom: 0,
+              child: Text(
+                'SMSAIAAASS v.1.0.2.6',
+                style: AppTypography.mono(
                   color: AppColors.green,
                   fontSize: 17,
                   letterSpacing: 0.6,
                   height: 1.5,
                 ),
-            	),
+              ),
             ),
 
             // Gameplay overlays listener (game over, CCTV, reports).

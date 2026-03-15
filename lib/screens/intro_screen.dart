@@ -14,7 +14,9 @@ import 'game_screen.dart';
 
 /// The introduction screen shown when the app starts.
 class IntroScreen extends StatefulWidget {
-  const IntroScreen({super.key});
+  final bool playShortOpeningTrack;
+
+  const IntroScreen({super.key, this.playShortOpeningTrack = false});
 
   @override
   State<IntroScreen> createState() => _IntroScreenState();
@@ -31,6 +33,8 @@ class _IntroScreenState extends State<IntroScreen> {
   int _creditIndex = 0;
   double _creditOpacity = 0;
   Duration _creditFadeDuration = Duration.zero;
+  dynamic _openingPlayer;
+  String? _activeOpeningTrack;
 
   // First of 4 is the Flame icon, then text credit screens.
   final List<_CreditScreenData> _credits = const [
@@ -54,10 +58,28 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   Future<void> _startOpeningMusic() async {
+    final trackName = widget.playShortOpeningTrack
+        ? 'opening_short.ogg'
+        : 'opening.ogg';
+    if (_activeOpeningTrack == trackName) return;
+
     final requestId = ++_openingMusicRequestId;
-    try {
+
+    Future<void> playOnce() async {
+      try {
+        await _openingPlayer?.stop();
+      } catch (_) {}
+      _openingPlayer = null;
       await FlameAudio.bgm.stop();
-      await FlameAudio.bgm.play('opening.ogg');
+      _openingPlayer = await FlameAudio.play(trackName);
+    }
+
+    try {
+      await playOnce();
+      if (!mounted || requestId != _openingMusicRequestId || !_soundEnabled) {
+        return;
+      }
+      _activeOpeningTrack = trackName;
     } catch (error) {
       if (!mounted || requestId != _openingMusicRequestId || !_soundEnabled) {
         return;
@@ -69,8 +91,8 @@ class _IntroScreenState extends State<IntroScreen> {
           return;
         }
         try {
-          await FlameAudio.bgm.stop();
-          await FlameAudio.bgm.play('opening.ogg');
+          await playOnce();
+          _activeOpeningTrack = trackName;
           return;
         } catch (_) {
           // Fall through to generic handler below.
@@ -81,6 +103,16 @@ class _IntroScreenState extends State<IntroScreen> {
       AudioSettings.setEnabled(false);
       debugPrint('Opening music unavailable: $error');
     }
+  }
+
+  Future<void> _stopOpeningMusic() async {
+    _openingMusicRequestId++;
+    _activeOpeningTrack = null;
+    try {
+      await _openingPlayer?.stop();
+    } catch (_) {}
+    _openingPlayer = null;
+    await FlameAudio.bgm.stop();
   }
 
   Future<void> _beginOpeningSequence({required bool enableSound}) async {
@@ -183,8 +215,14 @@ class _IntroScreenState extends State<IntroScreen> {
     if (_soundEnabled) {
       await _startOpeningMusic();
     } else {
-      await FlameAudio.bgm.stop();
+      await _stopOpeningMusic();
     }
+  }
+
+  @override
+  void dispose() {
+    _stopOpeningMusic();
+    super.dispose();
   }
 
   @override
@@ -258,44 +296,46 @@ class _IntroScreenState extends State<IntroScreen> {
                   width: min(800, MediaQuery.of(context).size.width * 0.8),
                   errorBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
-                
+
                 SizedBox(
-                	height: 350,
-                	child: Column(
-                		children: showMenu ? [
-                
-                  const SizedBox(height: 90),
-                  if (state.hasStartedGame)
-                    _MenuButton(
-                      label: 'Continue',
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const GameScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  if (state.hasStartedGame) const SizedBox(height: 30),
-                  _MenuButton(
-                    label: 'New game',
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const ExpositionScreen(),
-                        ),
-                      );
-                    },
+                  height: 350,
+                  child: Column(
+                    children: showMenu
+                        ? [
+                            const SizedBox(height: 90),
+                            if (state.hasStartedGame)
+                              _MenuButton(
+                                label: 'Continue',
+                                onPressed: () {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => const GameScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            if (state.hasStartedGame)
+                              const SizedBox(height: 30),
+                            _MenuButton(
+                              label: 'New game',
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ExpositionScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 30),
+                            _MenuButton(
+                              label: 'Settings',
+                              onPressed: _openSettings,
+                            ),
+                          ]
+                        : [Container()],
                   ),
-                  const SizedBox(height: 30),
-                  _MenuButton(label: 'Settings', onPressed: _openSettings),
-                ] : [
-                	Container(),
-                ],
-                
                 ),
-                ),
-                
               ],
             ),
           );
