@@ -160,7 +160,7 @@ class Consts {
 
   /// Extra scale applied from top to bottom of each CCTV feed.
   /// 0.28 means sprites grow up to 28% by the time they reach the bottom.
-  static const double cctvPerspectiveScaleFactor = 0.38;
+  static const double cctvPerspectiveScaleFactor = 0;
 
   /// Per-camera starting scales for feed sprites.
   static const double cctvCam1BaseScale = 1.7;
