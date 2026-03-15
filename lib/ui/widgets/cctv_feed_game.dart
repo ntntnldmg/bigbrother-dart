@@ -24,6 +24,10 @@ class CctvFeedGame extends FlameGame {
   late _WalkerSprites _sprites;
 
   double _spawnCountdown = 0;
+  bool _isDisposing = false;
+
+  @override
+  Color backgroundColor() => AppColors.transparent;
 
   @override
   Future<void> onLoad() async {
@@ -34,6 +38,7 @@ class CctvFeedGame extends FlameGame {
 
   @override
   void update(double dt) {
+    if (_isDisposing || !isLoaded || !isMounted) return;
     super.update(dt);
 
     _spawnCountdown -= dt;
@@ -51,6 +56,7 @@ class CctvFeedGame extends FlameGame {
   }
 
   void _spawnWalker() {
+    if (_isDisposing || !isLoaded || !isMounted) return;
     if (size.x <= 20 || size.y <= 20) return;
 
     final isUnregistered = _random.nextDouble() < 0.07;
@@ -59,7 +65,9 @@ class CctvFeedGame extends FlameGame {
         : _pickRegisteredResident();
     if (resident == null) return;
 
-    final x = 6 + _random.nextDouble() * max(1, size.x - 12);
+    final lanePadding = (_Walker.spriteWidth / 2) + 2;
+    final x =
+        lanePadding + _random.nextDouble() * max(1, size.x - (lanePadding * 2));
     final durationSeconds = 3 + _random.nextDouble() * 3; // 3..6
 
     final walker = _Walker(
@@ -72,6 +80,18 @@ class CctvFeedGame extends FlameGame {
 
     _walkers.add(walker);
     add(walker);
+  }
+
+  @override
+  void onRemove() {
+    _isDisposing = true;
+    for (final walker in _walkers) {
+      if (!walker.isRemoved) {
+        walker.removeFromParent();
+      }
+    }
+    _walkers.clear();
+    super.onRemove();
   }
 
   Resident? _pickRegisteredResident() {
@@ -102,7 +122,7 @@ class CctvFeedGame extends FlameGame {
     for (var i = _walkers.length - 1; i >= 0; i--) {
       final walker = _walkers[i];
       if (!walker.isUnregistered || walker.isRemoved) continue;
-      if (walker.hitRect.contains(localPosition)) {
+      if (walker.registrationHitRect.contains(localPosition)) {
         _registerResident(walker);
         return true;
       }
@@ -150,10 +170,12 @@ class _WalkerSprites {
 
 class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
   static final Random _random = Random();
+  static const double spriteWidth = 34;
+  static const double spriteHeight = 78;
 
   static final TextPaint _idPaint = TextPaint(
     style: const TextStyle(
-      fontSize: 8,
+      fontSize: 9,
       color: AppColors.textPrimary,
       fontWeight: FontWeight.w700,
     ),
@@ -184,7 +206,7 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    size = Vector2(22, 50);
+    size = Vector2(spriteWidth, spriteHeight);
     position = Vector2(laneX, -size.y);
     sprite = _currentSprite;
   }
@@ -217,7 +239,7 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
 
     sprite = _currentSprite;
 
-    if (position.y > game.size.y + size.y) {
+    if (hitRect.top > game.size.y) {
       removeFromParent();
     }
   }
@@ -233,15 +255,22 @@ class _Walker extends SpriteComponent with HasGameReference<CctvFeedGame> {
     size.y,
   );
 
+  Rect get registrationHitRect {
+    final base = hitRect;
+    if (!isUnregistered) return base;
+    // Give a forgiving click target for fast-moving unregistered sprites.
+    return base.inflate(6);
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
 
     final headRect = Rect.fromLTWH(
-      size.x * 0.2,
-      1,
-      size.x * 0.6,
-      size.y * 0.22,
+      size.x * 0.12,
+      0,
+      size.x * 0.76,
+      size.y * 0.36,
     );
     final boxPaint = Paint()
       ..style = PaintingStyle.stroke
